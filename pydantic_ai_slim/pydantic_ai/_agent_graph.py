@@ -1094,8 +1094,8 @@ async def _call_tools(
                 )
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
                 for task in done:
-                    index = tasks.index(task)
-                    if event := await handle_call_or_result(coro_or_task=task, index=index):
+                    index = tasks.index(task)  # pyright: ignore[reportArgumentType]
+                    if event := await handle_call_or_result(coro_or_task=task, index=index):  # pyright: ignore[reportArgumentType]
                         yield event
 
     # We append the results at the end, rather than as they are received, to retain a consistent ordering
