@@ -252,7 +252,7 @@ class OutputSchema(ABC, Generic[OutputDataT]):
             if len(outputs) > 1:
                 raise UserError('`NativeOutput` must be the only output type.')  # pragma: no cover
 
-            flattened_outputs = _flatten_output_spec(output.outputs)
+            flattened_outputs = _flatten_output_spec(output.outputs)  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
 
             if DeferredToolRequests in flattened_outputs:
                 raise UserError(  # pragma: no cover
@@ -277,7 +277,7 @@ class OutputSchema(ABC, Generic[OutputDataT]):
             if len(outputs) > 1:
                 raise UserError('`PromptedOutput` must be the only output type.')  # pragma: no cover
 
-            flattened_outputs = _flatten_output_spec(output.outputs)
+            flattened_outputs = _flatten_output_spec(output.outputs)  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
 
             if DeferredToolRequests in flattened_outputs:
                 raise UserError(  # pragma: no cover

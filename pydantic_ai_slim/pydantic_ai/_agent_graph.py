@@ -90,7 +90,7 @@ Can optionally accept a `RunContext` as a parameter.
 class GraphAgentState:
     """State kept across the execution of the agent graph."""
 
-    message_history: list[_messages.ModelMessage] = dataclasses.field(default_factory=list)
+    message_history: list[_messages.ModelMessage] = dataclasses.field(default_factory=list[_messages.ModelMessage])
     usage: _usage.RunUsage = dataclasses.field(default_factory=_usage.RunUsage)
     retries: int = 0
     run_step: int = 0
