@@ -9,12 +9,23 @@ from .agent import (
     UserPromptNode,
     capture_run_messages,
 )
-from .builtin_tools import CodeExecutionTool, UrlContextTool, WebSearchTool, WebSearchUserLocation
+from .builtin_tools import (
+    CodeExecutionTool,
+    ImageGenerationTool,
+    MCPServerTool,
+    MemoryTool,
+    UrlContextTool,  # pyright: ignore[reportDeprecated]
+    WebFetchTool,
+    WebSearchTool,
+    WebSearchUserLocation,
+)
 from .exceptions import (
     AgentRunError,
     ApprovalRequired,
     CallDeferred,
     FallbackExceptionGroup,
+    IncompleteToolCall,
+    ModelAPIError,
     ModelHTTPError,
     ModelRetry,
     UnexpectedModelBehavior,
@@ -30,11 +41,14 @@ from .messages import (
     BaseToolCallPart,
     BaseToolReturnPart,
     BinaryContent,
+    BinaryImage,
     BuiltinToolCallPart,
     BuiltinToolReturnPart,
+    CachePoint,
     DocumentFormat,
     DocumentMediaType,
     DocumentUrl,
+    FilePart,
     FileUrl,
     FinalResultEvent,
     FinishReason,
@@ -54,6 +68,7 @@ from .messages import (
     ModelResponseStreamEvent,
     MultiModalContent,
     PartDeltaEvent,
+    PartEndEvent,
     PartStartEvent,
     RetryPromptPart,
     SystemPromptPart,
@@ -79,6 +94,7 @@ from .profiles import (
     ModelProfile,
     ModelProfileSpec,
 )
+from .run import AgentRun, AgentRunResult, AgentRunResultEvent
 from .settings import ModelSettings
 from .tools import DeferredToolRequests, DeferredToolResults, RunContext, Tool, ToolApproved, ToolDefinition, ToolDenied
 from .toolsets import (
@@ -112,8 +128,10 @@ __all__ = (
     'CallDeferred',
     'ApprovalRequired',
     'ModelRetry',
+    'ModelAPIError',
     'ModelHTTPError',
     'FallbackExceptionGroup',
+    'IncompleteToolCall',
     'UnexpectedModelBehavior',
     'UsageLimitExceeded',
     'UserError',
@@ -127,10 +145,12 @@ __all__ = (
     'BinaryContent',
     'BuiltinToolCallPart',
     'BuiltinToolReturnPart',
+    'CachePoint',
     'DocumentFormat',
     'DocumentMediaType',
     'DocumentUrl',
     'FileUrl',
+    'FilePart',
     'FinalResultEvent',
     'FinishReason',
     'FunctionToolCallEvent',
@@ -139,6 +159,7 @@ __all__ = (
     'ImageFormat',
     'ImageMediaType',
     'ImageUrl',
+    'BinaryImage',
     'ModelMessage',
     'ModelMessagesTypeAdapter',
     'ModelRequest',
@@ -149,6 +170,7 @@ __all__ = (
     'ModelResponseStreamEvent',
     'MultiModalContent',
     'PartDeltaEvent',
+    'PartEndEvent',
     'PartStartEvent',
     'RetryPromptPart',
     'SystemPromptPart',
@@ -195,8 +217,12 @@ __all__ = (
     # builtin_tools
     'WebSearchTool',
     'WebSearchUserLocation',
+    'WebFetchTool',
     'UrlContextTool',
     'CodeExecutionTool',
+    'ImageGenerationTool',
+    'MemoryTool',
+    'MCPServerTool',
     # output
     'ToolOutput',
     'NativeOutput',
@@ -211,5 +237,9 @@ __all__ = (
     'RunUsage',
     'RequestUsage',
     'UsageLimits',
+    # run
+    'AgentRun',
+    'AgentRunResult',
+    'AgentRunResultEvent',
 )
 __version__ = _metadata_version('pydantic_ai_slim')

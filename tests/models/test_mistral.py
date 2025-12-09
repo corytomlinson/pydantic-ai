@@ -28,7 +28,7 @@ from pydantic_ai import (
     VideoUrl,
 )
 from pydantic_ai.agent import Agent
-from pydantic_ai.exceptions import ModelHTTPError, ModelRetry
+from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, ModelRetry
 from pydantic_ai.usage import RequestUsage
 
 from ..conftest import IsDatetime, IsNow, IsStr, raise_if_exception, try_import
@@ -213,7 +213,10 @@ async def test_multiple_completions(allow_model_requests: None):
     assert result.usage().output_tokens == 1
     assert result.all_messages() == snapshot(
         [
-            ModelRequest(parts=[UserPromptPart(content='hello', timestamp=IsNow(tz=timezone.utc))]),
+            ModelRequest(
+                parts=[UserPromptPart(content='hello', timestamp=IsNow(tz=timezone.utc))],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[TextPart(content='world')],
                 usage=RequestUsage(input_tokens=1, output_tokens=1),
@@ -223,8 +226,12 @@ async def test_multiple_completions(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
-            ModelRequest(parts=[UserPromptPart(content='hello again', timestamp=IsNow(tz=timezone.utc))]),
+            ModelRequest(
+                parts=[UserPromptPart(content='hello again', timestamp=IsNow(tz=timezone.utc))],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[TextPart(content='hello again')],
                 usage=RequestUsage(input_tokens=1, output_tokens=1),
@@ -234,6 +241,7 @@ async def test_multiple_completions(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -269,7 +277,10 @@ async def test_three_completions(allow_model_requests: None):
     assert result.usage().output_tokens == 1
     assert result.all_messages() == snapshot(
         [
-            ModelRequest(parts=[UserPromptPart(content='hello', timestamp=IsNow(tz=timezone.utc))]),
+            ModelRequest(
+                parts=[UserPromptPart(content='hello', timestamp=IsNow(tz=timezone.utc))],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[TextPart(content='world')],
                 usage=RequestUsage(input_tokens=1, output_tokens=1),
@@ -279,8 +290,12 @@ async def test_three_completions(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
-            ModelRequest(parts=[UserPromptPart(content='hello again', timestamp=IsNow(tz=timezone.utc))]),
+            ModelRequest(
+                parts=[UserPromptPart(content='hello again', timestamp=IsNow(tz=timezone.utc))],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[TextPart(content='hello again')],
                 usage=RequestUsage(input_tokens=1, output_tokens=1),
@@ -290,8 +305,12 @@ async def test_three_completions(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
-            ModelRequest(parts=[UserPromptPart(content='final message', timestamp=IsNow(tz=timezone.utc))]),
+            ModelRequest(
+                parts=[UserPromptPart(content='final message', timestamp=IsNow(tz=timezone.utc))],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[TextPart(content='final message')],
                 usage=RequestUsage(input_tokens=1, output_tokens=1),
@@ -301,6 +320,7 @@ async def test_three_completions(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -404,7 +424,10 @@ async def test_request_native_with_arguments_dict_response(allow_model_requests:
     assert result.usage().output_tokens == 2
     assert result.all_messages() == snapshot(
         [
-            ModelRequest(parts=[UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc))]),
+            ModelRequest(
+                parts=[UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc))],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[
                     ToolCallPart(
@@ -420,6 +443,7 @@ async def test_request_native_with_arguments_dict_response(allow_model_requests:
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -429,7 +453,8 @@ async def test_request_native_with_arguments_dict_response(allow_model_requests:
                         tool_call_id='123',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
         ]
     )
@@ -467,7 +492,10 @@ async def test_request_native_with_arguments_str_response(allow_model_requests: 
     assert result.usage().details == {}
     assert result.all_messages() == snapshot(
         [
-            ModelRequest(parts=[UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc))]),
+            ModelRequest(
+                parts=[UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc))],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[
                     ToolCallPart(
@@ -483,6 +511,7 @@ async def test_request_native_with_arguments_str_response(allow_model_requests: 
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -492,7 +521,8 @@ async def test_request_native_with_arguments_str_response(allow_model_requests: 
                         tool_call_id='123',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
         ]
     )
@@ -528,7 +558,8 @@ async def test_request_output_type_with_arguments_str_response(allow_model_reque
                 parts=[
                     SystemPromptPart(content='System prompt value', timestamp=IsNow(tz=timezone.utc)),
                     UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc)),
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -545,6 +576,7 @@ async def test_request_output_type_with_arguments_str_response(allow_model_reque
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -554,7 +586,8 @@ async def test_request_output_type_with_arguments_str_response(allow_model_reque
                         tool_call_id='123',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
         ]
     )
@@ -628,15 +661,6 @@ async def test_stream_structured_with_all_type(allow_model_requests: None):
                     'nullable_value': None,
                     'array_value': ['A', 'B', 'C'],
                     'dict_value': {'A': 'A', 'B': 'B'},
-                },
-                {
-                    'first': 'One',
-                    'second': 2,
-                    'bool_value': True,
-                    'nullable_value': None,
-                    'array_value': ['A', 'B', 'C'],
-                    'dict_value': {'A': 'A', 'B': 'B'},
-                    'dict_int_value': {'A': 1, 'B': 2},
                 },
                 {
                     'first': 'One',
@@ -741,7 +765,6 @@ async def test_stream_result_type_primitif_dict(allow_model_requests: None):
                 {'first': 'One', 'second': 'Two'},
                 {'first': 'One', 'second': 'Two'},
                 {'first': 'One', 'second': 'Two'},
-                {'first': 'One', 'second': 'Two'},
             ]
         )
         assert result.is_complete
@@ -772,7 +795,7 @@ async def test_stream_result_type_primitif_int(allow_model_requests: None):
     async with agent.run_stream('User prompt value') as result:
         assert not result.is_complete
         v = [c async for c in result.stream_output(debounce_by=None)]
-        assert v == snapshot([1, 1, 1])
+        assert v == snapshot([1, 1])
         assert result.is_complete
         assert result.usage().input_tokens == 6
         assert result.usage().output_tokens == 6
@@ -862,7 +885,6 @@ async def test_stream_result_type_primitif_array(allow_model_requests: None):
                 ['first', 'One', 'second', 'Two'],
                 ['first', 'One', 'second', 'Two'],
                 ['first', 'One', 'second', 'Two'],
-                ['first', 'One', 'second', 'Two'],
             ]
         )
         assert result.is_complete
@@ -946,7 +968,6 @@ async def test_stream_result_type_basemodel_with_default_params(allow_model_requ
                 MyTypedBaseModel(first='One', second='Two'),
                 MyTypedBaseModel(first='One', second='Two'),
                 MyTypedBaseModel(first='One', second='Two'),
-                MyTypedBaseModel(first='One', second='Two'),
             ]
         )
         assert result.is_complete
@@ -1011,7 +1032,6 @@ async def test_stream_result_type_basemodel_with_required_params(allow_model_req
                 MyTypedBaseModel(first='One', second=''),
                 MyTypedBaseModel(first='One', second='T'),
                 MyTypedBaseModel(first='One', second='Tw'),
-                MyTypedBaseModel(first='One', second='Two'),
                 MyTypedBaseModel(first='One', second='Two'),
                 MyTypedBaseModel(first='One', second='Two'),
                 MyTypedBaseModel(first='One', second='Two'),
@@ -1093,7 +1113,8 @@ async def test_request_tool_call(allow_model_requests: None):
                 parts=[
                     SystemPromptPart(content='this is the system prompt', timestamp=IsNow(tz=timezone.utc)),
                     UserPromptPart(content='Hello', timestamp=IsNow(tz=timezone.utc)),
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1110,6 +1131,7 @@ async def test_request_tool_call(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1119,7 +1141,8 @@ async def test_request_tool_call(allow_model_requests: None):
                         tool_call_id='1',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1136,6 +1159,7 @@ async def test_request_tool_call(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1145,7 +1169,8 @@ async def test_request_tool_call(allow_model_requests: None):
                         tool_call_id='2',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='final response')],
@@ -1156,6 +1181,7 @@ async def test_request_tool_call(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -1244,7 +1270,8 @@ async def test_request_tool_call_with_result_type(allow_model_requests: None):
                 parts=[
                     SystemPromptPart(content='this is the system prompt', timestamp=IsNow(tz=timezone.utc)),
                     UserPromptPart(content='Hello', timestamp=IsNow(tz=timezone.utc)),
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1261,6 +1288,7 @@ async def test_request_tool_call_with_result_type(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1270,7 +1298,8 @@ async def test_request_tool_call_with_result_type(allow_model_requests: None):
                         tool_call_id='1',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1287,6 +1316,7 @@ async def test_request_tool_call_with_result_type(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1296,7 +1326,8 @@ async def test_request_tool_call_with_result_type(allow_model_requests: None):
                         tool_call_id='2',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1313,6 +1344,7 @@ async def test_request_tool_call_with_result_type(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1322,7 +1354,8 @@ async def test_request_tool_call_with_result_type(allow_model_requests: None):
                         tool_call_id='1',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
         ]
     )
@@ -1383,7 +1416,7 @@ async def test_stream_tool_call_with_return_type(allow_model_requests: None):
     async with agent.run_stream('User prompt value') as result:
         assert not result.is_complete
         v = [c async for c in result.stream_output(debounce_by=None)]
-        assert v == snapshot([{'won': True}, {'won': True}])
+        assert v == snapshot([{'won': True}])
         assert result.is_complete
         assert result.timestamp() == datetime(2024, 1, 1, 0, 0, tzinfo=timezone.utc)
         assert result.usage().input_tokens == 4
@@ -1398,7 +1431,8 @@ async def test_stream_tool_call_with_return_type(allow_model_requests: None):
                 parts=[
                     SystemPromptPart(content='this is the system prompt', timestamp=IsNow(tz=timezone.utc)),
                     UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc)),
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1415,6 +1449,7 @@ async def test_stream_tool_call_with_return_type(allow_model_requests: None):
                 provider_details={'finish_reason': 'tool_calls'},
                 provider_response_id='x',
                 finish_reason='tool_call',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1424,7 +1459,8 @@ async def test_stream_tool_call_with_return_type(allow_model_requests: None):
                         tool_call_id='1',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[ToolCallPart(tool_name='final_result', args='{"won": true}', tool_call_id='1')],
@@ -1435,6 +1471,7 @@ async def test_stream_tool_call_with_return_type(allow_model_requests: None):
                 provider_details={'finish_reason': 'tool_calls'},
                 provider_response_id='x',
                 finish_reason='tool_call',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1444,7 +1481,8 @@ async def test_stream_tool_call_with_return_type(allow_model_requests: None):
                         tool_call_id='1',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
         ]
     )
@@ -1492,7 +1530,7 @@ async def test_stream_tool_call(allow_model_requests: None):
     async with agent.run_stream('User prompt value') as result:
         assert not result.is_complete
         v = [c async for c in result.stream_output(debounce_by=None)]
-        assert v == snapshot(['final ', 'final response', 'final response'])
+        assert v == snapshot(['final ', 'final response'])
         assert result.is_complete
         assert result.timestamp() == datetime(2024, 1, 1, 0, 0, tzinfo=timezone.utc)
         assert result.usage().input_tokens == 6
@@ -1507,7 +1545,8 @@ async def test_stream_tool_call(allow_model_requests: None):
                 parts=[
                     SystemPromptPart(content='this is the system prompt', timestamp=IsNow(tz=timezone.utc)),
                     UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc)),
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1524,6 +1563,7 @@ async def test_stream_tool_call(allow_model_requests: None):
                 provider_details={'finish_reason': 'tool_calls'},
                 provider_response_id='x',
                 finish_reason='tool_call',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1533,7 +1573,8 @@ async def test_stream_tool_call(allow_model_requests: None):
                         tool_call_id='1',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='final response')],
@@ -1544,6 +1585,7 @@ async def test_stream_tool_call(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='x',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -1619,7 +1661,8 @@ async def test_stream_tool_call_with_retry(allow_model_requests: None):
                 parts=[
                     SystemPromptPart(content='this is the system prompt', timestamp=IsNow(tz=timezone.utc)),
                     UserPromptPart(content='User prompt value', timestamp=IsNow(tz=timezone.utc)),
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1636,6 +1679,7 @@ async def test_stream_tool_call_with_retry(allow_model_requests: None):
                 provider_details={'finish_reason': 'tool_calls'},
                 provider_response_id='x',
                 finish_reason='tool_call',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1645,7 +1689,8 @@ async def test_stream_tool_call_with_retry(allow_model_requests: None):
                         tool_call_id='1',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -1662,6 +1707,7 @@ async def test_stream_tool_call_with_retry(allow_model_requests: None):
                 provider_details={'finish_reason': 'tool_calls'},
                 provider_response_id='x',
                 finish_reason='tool_call',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
@@ -1671,7 +1717,8 @@ async def test_stream_tool_call_with_retry(allow_model_requests: None):
                         tool_call_id='2',
                         timestamp=IsNow(tz=timezone.utc),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='final response')],
@@ -1682,6 +1729,7 @@ async def test_stream_tool_call_with_retry(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='x',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -1849,24 +1897,26 @@ async def test_image_as_binary_content_tool_response(
                         content=['What fruit is in the image you can get from the get_image tool? Call the tool.'],
                         timestamp=IsDatetime(),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
-                parts=[ToolCallPart(tool_name='get_image', args='{}', tool_call_id='utZJMAZN4')],
+                parts=[ToolCallPart(tool_name='get_image', args='{}', tool_call_id='GJYBCIkcS')],
                 usage=RequestUsage(input_tokens=65, output_tokens=16),
                 model_name='pixtral-12b-latest',
                 timestamp=IsDatetime(),
                 provider_name='mistral',
                 provider_details={'finish_reason': 'tool_calls'},
-                provider_response_id='fce6d16a4e5940edb24ae16dd0369947',
+                provider_response_id='412174432ea945889703eac58b44ae35',
                 finish_reason='tool_call',
+                run_id=IsStr(),
             ),
             ModelRequest(
                 parts=[
                     ToolReturnPart(
                         tool_name='get_image',
                         content='See file 1c8566',
-                        tool_call_id='utZJMAZN4',
+                        tool_call_id='GJYBCIkcS',
                         timestamp=IsDatetime(),
                     ),
                     UserPromptPart(
@@ -1876,21 +1926,23 @@ async def test_image_as_binary_content_tool_response(
                         ],
                         timestamp=IsDatetime(),
                     ),
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
                     TextPart(
-                        content='The image you\'re referring to, labeled as "file 1c8566," shows a kiwi. Kiwis are small, brown, oval-shaped fruits with a bright green flesh inside that is dotted with tiny black seeds. They have a sweet and tangy flavor and are known for being rich in vitamin C and fiber.'
+                        content='The image you\'re referring to, labeled as "file 1c8566," shows a kiwi fruit that has been cut in half. The kiwi is known for its bright green flesh with tiny black seeds and a central white core. It is a popular fruit known for its sweet taste and nutritional benefits.'
                     )
                 ],
-                usage=RequestUsage(input_tokens=2931, output_tokens=70),
+                usage=RequestUsage(input_tokens=2931, output_tokens=66),
                 model_name='pixtral-12b-latest',
                 timestamp=IsDatetime(),
                 provider_name='mistral',
                 provider_details={'finish_reason': 'stop'},
-                provider_response_id='26e7de193646460e8904f8e604a60dc1',
+                provider_response_id='049b5c7704554d3396e727a95cb6d947',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -1922,7 +1974,8 @@ async def test_image_url_input(allow_model_requests: None):
                         ],
                         timestamp=IsDatetime(),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='world')],
@@ -1933,6 +1986,7 @@ async def test_image_url_input(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -1961,7 +2015,8 @@ async def test_image_as_binary_content_input(allow_model_requests: None):
                         ],
                         timestamp=IsDatetime(),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='world')],
@@ -1972,6 +2027,7 @@ async def test_image_as_binary_content_input(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -2003,7 +2059,8 @@ async def test_pdf_url_input(allow_model_requests: None):
                         ],
                         timestamp=IsDatetime(),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='world')],
@@ -2014,6 +2071,7 @@ async def test_pdf_url_input(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -2039,7 +2097,8 @@ async def test_pdf_as_binary_content_input(allow_model_requests: None):
                         ],
                         timestamp=IsDatetime(),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='world')],
@@ -2050,6 +2109,7 @@ async def test_pdf_as_binary_content_input(allow_model_requests: None):
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -2107,6 +2167,21 @@ def test_model_status_error(allow_model_requests: None) -> None:
     assert str(exc_info.value) == snapshot('status_code: 500, model_name: mistral-large-latest, body: test error')
 
 
+def test_model_non_http_error(allow_model_requests: None) -> None:
+    mock_client = MockMistralAI.create_mock(
+        SDKError(
+            'Connection error',
+            status_code=300,
+            body='redirect',
+        )
+    )
+    m = MistralModel('mistral-large-latest', provider=MistralProvider(mistral_client=mock_client))
+    agent = Agent(m)
+    with pytest.raises(ModelAPIError) as exc_info:
+        agent.run_sync('hello')
+    assert exc_info.value.model_name == 'mistral-large-latest'
+
+
 async def test_mistral_model_instructions(allow_model_requests: None, mistral_api_key: str):
     c = completion_message(MistralAssistantMessage(content='world', role='assistant'))
     mock_client = MockMistralAI.create_mock(c)
@@ -2119,6 +2194,7 @@ async def test_mistral_model_instructions(allow_model_requests: None, mistral_ap
             ModelRequest(
                 parts=[UserPromptPart(content='hello', timestamp=IsDatetime())],
                 instructions='You are a helpful assistant.',
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[TextPart(content='world')],
@@ -2129,6 +2205,7 @@ async def test_mistral_model_instructions(allow_model_requests: None, mistral_ap
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='123',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -2143,7 +2220,10 @@ async def test_mistral_model_thinking_part(allow_model_requests: None, openai_ap
     result = await agent.run('How do I cross the street?')
     assert result.all_messages() == snapshot(
         [
-            ModelRequest(parts=[UserPromptPart(content='How do I cross the street?', timestamp=IsDatetime())]),
+            ModelRequest(
+                parts=[UserPromptPart(content='How do I cross the street?', timestamp=IsDatetime())],
+                run_id=IsStr(),
+            ),
             ModelResponse(
                 parts=[
                     ThinkingPart(
@@ -2163,6 +2243,7 @@ async def test_mistral_model_thinking_part(allow_model_requests: None, openai_ap
                 provider_details={'finish_reason': 'completed'},
                 provider_response_id='resp_68bb6452990081968f5aff503a55e3b903498c8aa840cf12',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -2181,7 +2262,8 @@ async def test_mistral_model_thinking_part(allow_model_requests: None, openai_ap
                         content='Considering the way to cross the street, analogously, how do I cross the river?',
                         timestamp=IsDatetime(),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
@@ -2195,6 +2277,7 @@ async def test_mistral_model_thinking_part(allow_model_requests: None, openai_ap
                 provider_details={'finish_reason': 'stop'},
                 provider_response_id='9abe8b736bff46af8e979b52334a57cd',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
@@ -2221,58 +2304,44 @@ async def test_mistral_model_thinking_part_iter(allow_model_requests: None, mist
                         content='How do I cross the street?',
                         timestamp=IsDatetime(),
                     )
-                ]
+                ],
+                run_id=IsStr(),
             ),
             ModelResponse(
                 parts=[
                     ThinkingPart(
-                        content="""\
-Okay, the user is asking a very basic question about how to cross the street. This seems like a straightforward query, but I need to make sure I provide clear and safe instructions. Crossing the street safely involves a few key steps that are generally taught to children and are important for everyone to follow.
-
-First, I recall that the basic steps involve looking both ways for oncoming traffic, using designated crosswalks if available, and following traffic signals if there are any. But I should break it down into clear, actionable steps.
-
-1. **Find a Safe Place to Cross**: Ideally, you should cross at a designated crosswalk or intersection. These are typically marked with white lines on the road and may have traffic signals or signs.
-
-2. **Look Both Ways**: Before stepping off the curb, look left, right, and then left again to check for oncoming traffic. This is because in many places, traffic comes from the left first (depending on the country's driving side).
-
-3. **Wait for a Safe Gap**: Make sure there is enough time to cross the street before any vehicles approach. If there's a traffic light, wait for the pedestrian signal to indicate it's safe to cross.
-
-4. **Cross with Caution**: Walk briskly across the street while keeping an eye out for any unexpected vehicles. Avoid running unless absolutely necessary.
-
-5. **Continue Looking**: Even while crossing, continue to look for vehicles to ensure your safety.
-
-6. **Follow Traffic Signals**: If there are traffic lights or pedestrian signals, obey them. Only cross when the signal indicates it's safe to do so.
-
-Additionally, it's important to make eye contact with drivers if possible, to ensure they see you before you cross. Avoid distractions like using your phone while crossing the street.
-
-But wait, does the user need any specific context? For example, are they in a country where cars drive on the left or the right? That might affect the direction they should look first. However, since the user hasn't specified a location, I'll provide a general answer that should work in most places.
-
-Also, if the user is asking this question, they might be very young or unfamiliar with urban environments, so I should keep the instructions simple and clear.
-
-Here's a concise response based on this thinking:\
-"""
+                        content='Okay, the user is asking how to cross the street. I know that crossing the street safely involves a few key steps: first, look both ways to check for oncoming traffic; second, use a crosswalk if one is available; third, obey any traffic signals or signs that may be present; and finally, proceed with caution until you have safely reached the other side. Let me compile this information into a clear and concise response.'
                     ),
                     TextPart(
                         content="""\
 To cross the street safely, follow these steps:
 
-1. Find a designated crosswalk or intersection if possible.
-2. Look left, right, and then left again to check for oncoming traffic.
-3. Wait for a safe gap in traffic or for the pedestrian signal to indicate it's safe to cross.
-4. Cross the street briskly while continuing to look for vehicles.
-5. Follow any traffic signals and always be cautious of your surroundings.
+1. Look both ways to check for oncoming traffic.
+2. Use a crosswalk if one is available.
+3. Obey any traffic signals or signs that may be present.
+4. Proceed with caution until you have safely reached the other side.
 
-If you're in a country where cars drive on the left (like the UK or Japan), remember to look right first instead of left. Always prioritize your safety and make sure drivers see you before crossing.\
+```markdown
+To cross the street safely, follow these steps:
+
+1. Look both ways to check for oncoming traffic.
+2. Use a crosswalk if one is available.
+3. Obey any traffic signals or signs that may be present.
+4. Proceed with caution until you have safely reached the other side.
+```
+
+By following these steps, you can ensure a safe crossing.\
 """
                     ),
                 ],
-                usage=RequestUsage(input_tokens=10, output_tokens=602),
+                usage=RequestUsage(input_tokens=10, output_tokens=232),
                 model_name='magistral-medium-latest',
                 timestamp=IsDatetime(),
                 provider_name='mistral',
                 provider_details={'finish_reason': 'stop'},
-                provider_response_id='9faf4309c1d743d189f16b29211d8b45',
+                provider_response_id='9f9d90210f194076abeee223863eaaf0',
                 finish_reason='stop',
+                run_id=IsStr(),
             ),
         ]
     )
