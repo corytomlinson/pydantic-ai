@@ -2429,23 +2429,21 @@ class OpenAIResponsesStreamedResponse(StreamedResponse):
 
             elif isinstance(chunk, responses.ResponseTextDoneEvent):
                 # When text is done, add logprobs and annotations to provider_details if available
-                part_index = self._parts_manager._vendor_id_to_part_index.get(chunk.item_id)
-                if part_index is not None:
-                    part = self._parts_manager._parts[part_index]
-                    if isinstance(part, TextPart):
-                        # Add logprobs if available
-                        if chunk.logprobs:
+                part = self._parts_manager.get_part_by_vendor_id(chunk.item_id)
+                if part is not None and isinstance(part, TextPart):
+                    # Add logprobs if available
+                    if chunk.logprobs:
+                        if part.provider_details is None:
+                            part.provider_details = {}
+                        part.provider_details['logprobs'] = _map_logprobs(chunk.logprobs)
+
+                    # Add annotations if the setting is enabled
+                    if self._model_settings.get('openai_include_web_search_content_annotations_raw'):
+                        annotations = _annotations_by_item.get(chunk.item_id)
+                        if annotations:
                             if part.provider_details is None:
                                 part.provider_details = {}
-                            part.provider_details['logprobs'] = _map_logprobs(chunk.logprobs)
-
-                        # Add annotations if the setting is enabled
-                        if self._model_settings.get('openai_include_web_search_content_annotations_raw'):
-                            annotations = _annotations_by_item.get(chunk.item_id)
-                            if annotations:
-                                if part.provider_details is None:
-                                    part.provider_details = {}
-                                part.provider_details['annotations'] = annotations
+                            part.provider_details['annotations'] = annotations
 
             elif isinstance(chunk, responses.ResponseWebSearchCallInProgressEvent):
                 pass  # there's nothing we need to do here
@@ -2601,8 +2599,9 @@ def _make_raw_content_updater(delta: str, index: int) -> Callable[[dict[str, Any
 
 # Convert logprobs to a serializable format
 def _map_logprobs(
-    logprobs: list[chat_completion_token_logprob.ChatCompletionTokenLogprob]
-    | list[responses.response_output_text.Logprob],
+    logprobs: Sequence[chat_completion_token_logprob.ChatCompletionTokenLogprob]
+    | Sequence[responses.response_output_text.Logprob]
+    | Sequence[Any],  # For response_text_done_event.Logprob and other Logprob types
 ) -> list[dict[str, Any]]:
     return [
         {

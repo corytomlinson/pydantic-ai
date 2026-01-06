@@ -8762,7 +8762,6 @@ async def test_openai_responses_text_annotations_non_streaming(allow_model_reque
     # Create a mock annotation
     mock_annotation = AnnotationURLCitation(
         type='url_citation',
-        text='[1]',
         start_index=0,
         end_index=3,
         url='https://example.com',
