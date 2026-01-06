@@ -8789,7 +8789,7 @@ async def test_openai_responses_text_annotations_non_streaming(allow_model_reque
     agent = Agent(model, instructions='Test agent')
 
     # Test with annotations enabled
-    settings = OpenAIResponsesModelSettings(openai_include_text_annotations=True)
+    settings = OpenAIResponsesModelSettings(openai_include_web_search_content_annotations_raw=True)
     result = await agent.run('Test', model_settings=settings)
 
     assert len(result.all_messages()) == 2

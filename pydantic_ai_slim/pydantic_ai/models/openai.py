@@ -335,8 +335,8 @@ class OpenAIResponsesModelSettings(OpenAIChatModelSettings, total=False):
     Corresponds to the `file_search_call.results` value of the `include` parameter in the Responses API.
     """
 
-    openai_include_text_annotations: bool
-    """Whether to include text annotations in `TextPart.provider_details`.
+    openai_include_web_search_content_annotations_raw: bool
+    """Whether to include raw web search content annotations in `TextPart.provider_details`.
 
     When enabled, any annotations (e.g., citations from web search) will be available
     in the `provider_details['annotations']` field of text parts.
@@ -1297,7 +1297,10 @@ class OpenAIResponsesModel(Model):
                         part_provider_details: dict[str, Any] | None = None
                         if content.logprobs:
                             part_provider_details = {'logprobs': _map_logprobs(content.logprobs)}
-                        if model_settings.get('openai_include_text_annotations') and content.annotations:
+                        if (
+                            model_settings.get('openai_include_web_search_content_annotations_raw')
+                            and content.annotations
+                        ):
                             if part_provider_details is None:
                                 part_provider_details = {}
                             part_provider_details['annotations'] = content.annotations
@@ -2413,7 +2416,7 @@ class OpenAIResponsesStreamedResponse(StreamedResponse):
 
             elif isinstance(chunk, responses.ResponseOutputTextAnnotationAddedEvent):
                 # Collect annotations if the setting is enabled
-                if self._model_settings.get('openai_include_text_annotations'):
+                if self._model_settings.get('openai_include_web_search_content_annotations_raw'):
                     if chunk.item_id not in _annotations_by_item:
                         _annotations_by_item[chunk.item_id] = []
                     _annotations_by_item[chunk.item_id].append(chunk.annotation)
@@ -2437,7 +2440,7 @@ class OpenAIResponsesStreamedResponse(StreamedResponse):
                             part.provider_details['logprobs'] = _map_logprobs(chunk.logprobs)
 
                         # Add annotations if the setting is enabled
-                        if self._model_settings.get('openai_include_text_annotations'):
+                        if self._model_settings.get('openai_include_web_search_content_annotations_raw'):
                             annotations = _annotations_by_item.get(chunk.item_id)
                             if annotations:
                                 if part.provider_details is None:
